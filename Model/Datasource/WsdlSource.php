@@ -51,7 +51,6 @@ class WsdlSource extends DataSource {
 	}
 
 	public function listSources() {
-		$sources = $this->_SoapClient->__getFunctions();
 		return $this->_SoapClient->__getFunctions();
 	}
 
@@ -68,8 +67,6 @@ class WsdlSource extends DataSource {
 			$query = $query[0];
 		}
 		$query = new $method($query);
-		//debug($query);
-		//exit;
 		$this->startTimer('soapQuery_' . $method, 'Soap::' . $method);
 		try {
 			$response = $this->_SoapClient->{$method}($query);
@@ -77,7 +74,6 @@ class WsdlSource extends DataSource {
 			$this->stopTimer('soapQuery_' . $method);
 			throw new CakeException($SoapFault->faultstring);
 		}
-		//debug($response);
 		$this->stopTimer('soapQuery_' . $method);
 		return $this->resultSet($response, $method);
 	}
