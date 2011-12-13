@@ -1,0 +1,19 @@
+Usage
+
+Command line:
+cake Wsdl.Wsdl
+
+and follow the instructions
+
+create a config in database.php like the example:
+
+
+	public $soapservice = array(
+		'datasource' => 'Wsdl.WsdlSource',
+		'wsdl' => 'http://domain.com/service.asmx?WSDL',
+		'lib' => 'ServiceClassMap'
+	);
+
+Set wsdl and lib to the values you entered and got back in the shell.
+
+Add $useTable = false; and $useDbConfig = 'soapservice'; to your model.
