@@ -1,4 +1,4 @@
-This plugin iterates over a SOAP API and generates a (cake)php file that you can include in your projects 
+This plugin iterates over a SOAP API and generates a (cake)php file that you can include in your projects
 that contains all the API's methods & objects as PHP classes.
 These classes can then be used by this plugin's datasource to talk with the service.
 
@@ -18,11 +18,16 @@ wget https://github.com/ceeram/wsdl/zipball/master -o wsdl.zip
 unzip wsdl.zip
 mv ceeram-wsdl-* Wsdl && rm -f wsdl.zip
 ```
+or git clone, from your app dir:
+
+```shell
+git clone git://github.com/ceeram/wsdl.git Plugin/Wsdl
+```
 
 ## Usage
 
 Command line:
-    
+
 ```shell
 cake Wsdl.Wsdl
 ```
