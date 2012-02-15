@@ -1,19 +1,44 @@
-Usage
+This plugin iterates over a SOAP API and generates a (cake)php file that you can include in your projects 
+that contains all the API's methods & objects as PHP classes.
+These classes can then be used by this plugin's datasource to talk with the service.
+
+## Prerequisites
+
+You'll need the XSLTProcessor. On Ubuntu you'd install that as such:
+
+```shell
+aptitude install php5-xsl
+```
+
+## Install
+
+```shell
+cd app/Plugin
+wget https://github.com/ceeram/wsdl/zipball/master -o wsdl.zip
+unzip wsdl.zip
+mv ceeram-wsdl-* Wsdl && rm -f wsdl.zip
+```
+
+## Usage
 
 Command line:
+    
+```shell
 cake Wsdl.Wsdl
+```
 
 and follow the instructions
 
-create a config in database.php like the example:
+create a config in `database.php` like the example:
 
-
-	public $soapservice = array(
-		'datasource' => 'Wsdl.WsdlSource',
-		'wsdl' => 'http://domain.com/service.asmx?WSDL',
-		'lib' => 'ServiceClassMap'
-	);
+```php
+public $soapservice = array(
+	'datasource' => 'Wsdl.WsdlSource',
+	'wsdl' => 'http://domain.com/service.asmx?WSDL',
+	'lib' => 'ServiceClassMap',
+);
+```
 
 Set wsdl and lib to the values you entered and got back in the shell.
 
-Add $useTable = false; and $useDbConfig = 'soapservice'; to your model.
+Add `public $useTable = false;` and `public $useDbConfig = 'soapservice';` to your model.
