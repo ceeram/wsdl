@@ -382,7 +382,7 @@ class WSDLInterpreter
         $return .= "\t".' * @return void'."\n";
         $return .= "\t".' */'."\n";
         $return .= "\t".'public function __construct($args) {'."\n";
-		$return .= "\t\t".'foreach($args as $name => $arg) {'."\n";
+		$return .= "\t\t".'foreach ((array) $args as $name => $arg) {'."\n";
 		$return .= "\t\t\t".'if (property_exists($this, $name)) {'."\n";
 		$return .= "\t\t\t\t".'$this->{$name} = $arg;'."\n";
 		$return .= "\t\t\t".'}'."\n";
