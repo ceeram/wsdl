@@ -1,4 +1,5 @@
 <?php
+App::uses('DebugKitDebugger', 'DebugKit.Lib');
 class WsdlSource extends DataSource {
 
 	public $description = 'Wsdl Soap Datasource';
@@ -9,8 +10,17 @@ class WsdlSource extends DataSource {
 
 	public $classmap = array();
 
+	protected $_useDebugKit = false;
+
 	public function __construct($config) {
 		parent::__construct($config);
+
+		try {
+			$this->_useDebugKit = class_exists('DebugKitDebugger');
+		} catch (MissingPluginException $Exception) {
+			$this->_useDebugKit = false;
+		}
+
 		$this->loadService();
 		$this->connect();
 	}
@@ -25,7 +35,7 @@ class WsdlSource extends DataSource {
 		);
 		try {
 			$this->_SoapClient = new SoapClient($this->config['wsdl'], $options);
-		} catch(SoapFault $SoapFault) {
+		} catch (SoapFault $SoapFault) {
 			throw new CakeException($SoapFault->getMessage());
 		}
 		if (!empty($this->_SoapClient)) {
@@ -55,7 +65,7 @@ class WsdlSource extends DataSource {
 	}
 
 	public function query($method, $query = null, $object = null) {
-		if(!$this->connected) {
+		if (!$this->connected) {
 			throw new CakeException(__('Not connected'));
 		}
 
@@ -67,14 +77,14 @@ class WsdlSource extends DataSource {
 			$query = $query[0];
 		}
 		$query = new $method($query);
-		$this->startTimer('soapQuery_' . $method, 'Soap::' . $method);
+		$this->startTimer($method);
 		try {
 			$response = $this->_SoapClient->{$method}($query);
 		} catch (SoapFault $SoapFault) {
-			$this->stopTimer('soapQuery_' . $method);
+			$this->stopTimer($method);
 			throw new CakeException($SoapFault->faultstring);
 		}
-		$this->stopTimer('soapQuery_' . $method);
+		$this->stopTimer($method);
 		return $this->resultSet($response, $method);
 	}
 
@@ -86,19 +96,24 @@ class WsdlSource extends DataSource {
 		return $this->_SoapClient->__getLastRequest();
 	}
 
-	public function startTimer($name = null, $message = null) {
+	public function startTimer($method) {
 		if (Configure::read('debug') == 0){
 			return false;
 		}
-		App::uses('DebugKitDebugger', 'DebugKit.Lib');
-		return DebugKitDebugger::startTimer($name, $message);
+		if ($this->_useDebugKit) {
+			return DebugKitDebugger::startTimer("soapQuery_$method", "Soap::$method");
+		}
+		return true;
+
 	}
 
-	public function stopTimer($name = null) {
+	public function stopTimer($method) {
 		if (Configure::read('debug') == 0){
 			return false;
 		}
-		return DebugKitDebugger::stopTimer($name);
+		if ($this->_useDebugKit) {
+			return DebugKitDebugger::stopTimer("soapQuery_$method");
+		}
 	}
 
 	public function resultSet($response, $method) {
