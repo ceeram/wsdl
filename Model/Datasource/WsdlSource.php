@@ -12,8 +12,16 @@ class WsdlSource extends DataSource {
 
 	protected $_useDebugKit = false;
 
+	protected $_useLogging = false;
+
+	protected $_log = array();
+
 	public function __construct($config) {
 		parent::__construct($config);
+
+		if (Configure::read('debug') > 0) {
+			$this->_useLogging = true;
+		}
 
 		try {
 			$this->_useDebugKit = class_exists('DebugKitDebugger');
@@ -69,23 +77,43 @@ class WsdlSource extends DataSource {
 			throw new CakeException(__('Not connected'));
 		}
 
-		if($method == 'describe') {
+		if ($method == 'describe') {
 			return $this->listSources();
 		}
 
 		if ($query) {
 			$query = $query[0];
 		}
-		$query = new $method($query);
+
+		if (!class_exists($method)) {
+			throw new CakeException(sprintf(__('Method %s does not exist in this API. Try rebuilding the classes from the WSDL.'), $method));
+		}
+		$Class = new $method($query);
+
+		$error = '-';
 		$this->startTimer($method);
+		$start = microtime(true);
+
 		try {
-			$response = $this->_SoapClient->{$method}($query);
+			$response = $this->_SoapClient->{$method}($Class);
 		} catch (SoapFault $SoapFault) {
-			$this->stopTimer($method);
+			$response = $SoapFault;
+			$error = $SoapFault->faultstring;
+		}
+
+		$took = round((microtime(true) - $start) * 1000, 0);
+		$this->stopTimer($method);
+		$affected = '-';
+
+		if ($response instanceof SoapFault) {
+			$this->log($method, $query, $error, $affected, 0, $took);
 			throw new CakeException($SoapFault->faultstring);
 		}
-		$this->stopTimer($method);
-		return $this->resultSet($response, $method);
+
+		$result = $this->resultSet($response, $method);
+		$count = $result ? count(Set::flatten($result)) : 0;
+		$this->log($method, $query, $error, $affected, $count, $took);
+		return $result;
 	}
 
 	public function getLastResponse() {
@@ -121,5 +149,20 @@ class WsdlSource extends DataSource {
 		$response = $response->{$resultName};
 		return Set::reverse($response);
 	}
+
+	public function log($method, $query, $error, $affected, $numRows, $took) {
+		if ($this->_useLogging) {
+			$query = $method . ' ' . json_encode($query);
+			$this->_log[] = compact('query', 'error', 'affected', 'numRows', 'took');
+		}
+	}
+
+	public function getLog() {
+		$log = $this->_log;
+		$count = count($log);
+		$time = array_sum(Set::extract('/took', $log));
+		return compact('log', 'count', 'time');
+	}
+
 
 }
