@@ -179,13 +179,13 @@ class WsdlSource extends DataSource {
 		$affected = '-';
 
 		if ($response instanceof SoapFault) {
-			$this->log($method, $query, $error, $affected, 0, $took);
+			$this->_log($method, $query, $error, $affected, 0, $took);
 			throw new CakeException($SoapFault->faultstring);
 		}
 
 		$result = $this->resultSet($response, $method);
 		$count = $result ? count(Set::flatten($result)) : 0;
-		$this->log($method, $query, $error, $affected, $count, $took);
+		$this->_log($method, $query, $error, $affected, $count, $took);
 		return $result;
 	}
 
@@ -262,7 +262,7 @@ class WsdlSource extends DataSource {
 	 * @param int $numRows The number of returned rows.
 	 * @param int $took The time it took to process the query.
 	 */
-	public function log($method, $query, $error, $affected, $numRows, $took) {
+	protected function _log($method, $query, $error, $affected, $numRows, $took) {
 		if ($this->_useLogging) {
 			$query = $method . ' ' . json_encode($query);
 			$this->_log[] = compact('query', 'error', 'affected', 'numRows', 'took');
