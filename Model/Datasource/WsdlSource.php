@@ -67,11 +67,7 @@ class WsdlSource extends DataSource {
 			$this->_useLogging = true;
 		}
 
-		try {
-			$this->_useDebugKit = class_exists('DebugKitDebugger');
-		} catch (MissingPluginException $Exception) {
-			$this->_useDebugKit = false;
-		}
+		$this->_useDebugKit = CakePlugin::loaded('DebugKit');
 
 		$this->loadService();
 		$this->connect();
