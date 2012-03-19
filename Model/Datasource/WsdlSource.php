@@ -14,6 +14,17 @@ class WsdlSource extends DataSource {
 	public $description = 'Wsdl Soap Datasource';
 
 	/**
+	 * Default configuration options.
+	 */
+	public $_baseConfig = array(
+		'username' => false,
+		'password' => false,
+		'wsdl' => null,
+		'cacheWsdl' => WSDL_CACHE_MEMORY,
+		'headerNamespacesMap' => array()
+	);
+
+	/**
 	 * Connection status.
 	 *
 	 * @var boolean
@@ -56,6 +67,11 @@ class WsdlSource extends DataSource {
 	protected $_log = array();
 
 	/**
+	 * List of SOAP headers.
+	 */
+	protected $_soapHeaders = array();
+
+	/**
 	 * Constructor.
 	 *
 	 * @param array $config Configuration options.
@@ -80,15 +96,8 @@ class WsdlSource extends DataSource {
 	 * @throws CakeException
 	 */
 	public function connect() {
-		$options = array(
-			'trace' => Configure::read('debug') > 0,// for SoapClient::__getLast...() methods
-			//'soap_version' => SOAP_1_2,
-			'classmap' => $this->classmap,
-			'exceptions' => true,
-			'features' => SOAP_SINGLE_ELEMENT_ARRAYS
-		);
 		try {
-			$this->_SoapClient = new SoapClient($this->config['wsdl'], $options);
+			$this->_SoapClient = new SoapClient($this->config['wsdl'], $this->_getOptions());
 		} catch (SoapFault $SoapFault) {
 			throw new CakeException($SoapFault->getMessage());
 		}
@@ -96,6 +105,28 @@ class WsdlSource extends DataSource {
 			$this->connected = true;
 		}
 		return $this->connected;
+	}
+
+	/**
+	 * Formats the configuration to return options for the SoapClient.
+	 *
+	 * @return array The formatted options.
+	 */
+	protected function _getOptions() {
+		$options = array(
+			'trace' => Configure::read('debug') > 0,
+			'classmap' => $this->classmap,
+			'exceptions' => true,
+			'features' => SOAP_SINGLE_ELEMENT_ARRAYS,
+			'cache_wsdl' => $this->config['cacheWsdl']
+		);
+		if ($this->config['username']) {
+			$options += array('username' => $this->config['username']);
+		}
+		if ($this->config['password']) {
+			$options += array('password' => $this->config['password']);
+		}
+		return $options;
 	}
 
 	/**
@@ -164,6 +195,7 @@ class WsdlSource extends DataSource {
 		$start = microtime(true);
 
 		try {
+			$this->_SoapClient->__setSoapHeaders($this->_soapHeaders);
 			$response = $this->_SoapClient->{$method}($Class);
 		} catch (SoapFault $SoapFault) {
 			$response = $SoapFault;
@@ -246,6 +278,30 @@ class WsdlSource extends DataSource {
 		$resultName = ucfirst($method . 'Result');
 		$response = $response->{$resultName};
 		return Set::reverse($response);
+	}
+
+	/**
+	 * Adds a SOAP header to the next requests.
+	 *
+	 * @param string $headerNamespace The name of namespace to use (as described in the headerNamespaceMap config option).
+	 * @param string $name The name of the header.
+	 * @param mixed $data The data for the header.
+	 * @param boolean $mustUnderstand Value of the mustUnderstand attribute of the SOAP header element.
+	 * @param string $actor Value of the actor attribute of the SOAP header element.
+	 */
+	public function addSoapHeader($headerNamespace, $name, $data = array(), $mustUnderstand = false, $actor = false) {
+		if ($actor) {
+			$this->_soapHeaders[] = new SoapHeader($this->config['headerNamespacesMap'][$headerNamespace], $name, $data, $mustUnderstand, $actor);
+		} else {
+			$this->_soapHeaders[] = new SoapHeader($this->config['headerNamespacesMap'][$headerNamespace], $name, $data, $mustUnderstand);
+		}
+	}
+
+	/**
+	 * Resets the SOAP headers.
+	 */
+	public function resetSoapHeaders() {
+		$this->_soapHeaders = array();
 	}
 
 	/**
