@@ -212,7 +212,7 @@ class WsdlSource extends DataSource {
 		}
 
 		$result = $this->resultSet($response, $method);
-		$count = $result ? count(Set::flatten($result)) : 0;
+		$count = $result ? count(Set::flatten((array)$result)) : 0;
 		$this->_log($method, $query, $error, $affected, $count, $took);
 		return $result;
 	}
