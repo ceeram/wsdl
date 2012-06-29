@@ -246,7 +246,7 @@ class WsdlSource extends DataSource {
 			return false;
 		}
 		if ($this->_useDebugKit) {
-			return DebugKitDebugger::startTimer("soapQuery_$method", "Soap::$method");
+			return DebugTimer::start("soapQuery_$method", "Soap::$method");
 		}
 		return true;
 
@@ -263,7 +263,7 @@ class WsdlSource extends DataSource {
 			return false;
 		}
 		if ($this->_useDebugKit) {
-			return DebugKitDebugger::stopTimer("soapQuery_$method");
+			return DebugTimer::stop("soapQuery_$method");
 		}
 	}
 
