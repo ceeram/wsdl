@@ -1,0 +1,11 @@
+{
+	"name": "ceeram/wsdl",
+	"type": "cakephp-plugin",
+	"description": "Making SOAP easy for CAKEPHP",
+	"homepage": "http://github.com/ceeram/wsdl",
+	"license": "MIT",
+	"require": {
+		"php": ">=5.3.0",
+		"composer/installers": "*"
+	}
+}
