@@ -1,7 +1,7 @@
 {
 	"name": "ceeram/wsdl",
 	"type": "cakephp-plugin",
-	"description": "Making SOAP easy for CAKEPHP",
+	"description": "SOAP made simple again with CakePHP. Build a classmap of the wsdl file.",
 	"homepage": "http://github.com/ceeram/wsdl",
 	"license": "MIT",
 	"require": {
