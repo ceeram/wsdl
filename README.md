@@ -47,3 +47,19 @@ public $soapservice = array(
 Set wsdl and lib to the values you entered and got back in the shell.
 
 Add `public $useTable = false;` and `public $useDbConfig = 'soapservice';` to your model.
+
+
+### Authentication
+
+If the web service is protected via Basic authentication, you could supply
+the credentials as follows:
+
+```php
+public $soapservice = array(
+	'datasource' => 'Wsdl.WsdlSource',
+	'wsdl' => 'http://domain.com/service.asmx?WSDL',
+	'lib' => 'ServiceClassMap',
+	'login' => 'phally',
+	'password' => 'awesome',
+);
+```
