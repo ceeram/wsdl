@@ -97,8 +97,7 @@ class WsdlSource extends DataSource {
 	 */
 	public function connect() {
 		try {
-			$wsdl = $this->_wsdl();
-			$this->_SoapClient = new SoapClient($wsdl, $this->_getOptions());
+			$this->_SoapClient = new SoapClient($this->_getWsdl(), $this->_getOptions());
 		} catch (SoapFault $SoapFault) {
 			throw new CakeException($SoapFault->getMessage());
 		}
@@ -113,7 +112,7 @@ class WsdlSource extends DataSource {
  *
  * @return string
  */
-	protected function _wsdl() {
+	protected function _getWsdl() {
 		$wsdl = $this->config['wsdl'];
 		$hasCredentials = !empty($this->config['login']) && !empty($this->config['password']);
 		if (strpos($wsdl, 'http') === 0 && $hasCredentials) {
