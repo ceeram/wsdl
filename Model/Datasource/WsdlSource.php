@@ -97,12 +97,7 @@ class WsdlSource extends DataSource {
 	 */
 	public function connect() {
 		try {
-			$wsdl = $this->config['wsdl'];
-			$hasCredentials = isset($this->config['login']) && isset($this->config['password']);
-			if (strpos($wsdl, 'http') !== false && $hasCredentials) {
-				$auth = urlencode($this->config['login']) . ':' .  urlencode($this->config['password']) . '@';
-				$wsdl = preg_replace('/:\/\//', '://' . $auth, $wsdl);
-			}
+			$wsdl = $this->_wsdl();
 			$this->_SoapClient = new SoapClient($wsdl, $this->_getOptions());
 		} catch (SoapFault $SoapFault) {
 			throw new CakeException($SoapFault->getMessage());
@@ -111,6 +106,21 @@ class WsdlSource extends DataSource {
 			$this->connected = true;
 		}
 		return $this->connected;
+	}
+
+/**
+ * Creates correct wsdl location
+ *
+ * @return string
+ */
+	protected function _wsdl() {
+		$wsdl = $this->config['wsdl'];
+		$hasCredentials = !empty($this->config['login']) && !empty($this->config['password']);
+		if (strpos($wsdl, 'http') === 0 && $hasCredentials) {
+			$auth = urlencode($this->config['login']) . ':' .  urlencode($this->config['password']) . '@';
+			$wsdl = preg_replace('/:\/\//', '://' . $auth, $wsdl);
+		}
+		return $wsdl;
 	}
 
 	/**
