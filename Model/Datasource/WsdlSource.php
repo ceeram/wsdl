@@ -17,7 +17,7 @@ class WsdlSource extends DataSource {
 	 * Default configuration options.
 	 */
 	public $_baseConfig = array(
-		'username' => false,
+		'login' => false,
 		'password' => false,
 		'wsdl' => null,
 		'cacheWsdl' => WSDL_CACHE_MEMORY,
@@ -97,7 +97,13 @@ class WsdlSource extends DataSource {
 	 */
 	public function connect() {
 		try {
-			$this->_SoapClient = new SoapClient($this->config['wsdl'], $this->_getOptions());
+			$wsdl = $this->config['wsdl'];
+			$hasCredentials = isset($this->config['login']) && isset($this->config['password']);
+			if (strpos($wsdl, 'http') !== false && $hasCredentials) {
+				$auth = urlencode($this->config['login']) . ':' .  urlencode($this->config['password']) . '@';
+				$wsdl = preg_replace('/:\/\//', '://' . $auth, $wsdl);
+			}
+			$this->_SoapClient = new SoapClient($wsdl, $this->_getOptions());
 		} catch (SoapFault $SoapFault) {
 			throw new CakeException($SoapFault->getMessage());
 		}
@@ -120,8 +126,8 @@ class WsdlSource extends DataSource {
 			'features' => SOAP_SINGLE_ELEMENT_ARRAYS,
 			'cache_wsdl' => $this->config['cacheWsdl']
 		);
-		if ($this->config['username']) {
-			$options += array('username' => $this->config['username']);
+		if ($this->config['login']) {
+			$options += array('login' => $this->config['login']);
 		}
 		if ($this->config['password']) {
 			$options += array('password' => $this->config['password']);
