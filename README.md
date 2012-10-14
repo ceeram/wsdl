@@ -26,6 +26,8 @@ git clone git://github.com/ceeram/wsdl.git Plugin/Wsdl
 
 ## Usage
 
+In app/Config/bootstrap.php add: CakePlugin::load('Wsdl');
+
 Command line:
 
 ```shell
