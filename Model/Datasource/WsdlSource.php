@@ -1,5 +1,5 @@
 <?php
-App::uses('DebugKitDebugger', 'DebugKit.Lib');
+App::uses('DebugTimer', 'DebugKit.Lib');
 
 /**
  * SOAP datasource based on the service's WSDL.
