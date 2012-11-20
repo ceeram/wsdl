@@ -175,7 +175,7 @@ class WsdlSource extends DataSource {
 	 *
 	 * @return array The list with the methods.
 	 */
-	public function listSources() {
+	public function listSources($data = null) {
 		return $this->_SoapClient->__getFunctions();
 	}
 
